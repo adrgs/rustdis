@@ -64,9 +64,12 @@ fn main() {
     let listener = TcpListener::bind("127.0.0.1:6379").unwrap();
     
     for stream in listener.incoming() {
-        match handle_connection(stream.unwrap()) {
-            Ok(_) => (),
-            Err(e) => println!("Error: {}", e.to_string().trim())
+        let stream = stream.unwrap();
+        loop {
+            match handle_connection(stream.try_clone().unwrap()) {
+                Ok(_) => (),
+                Err(e) => {println!("Error: {}", e.to_string().trim()); break;}
+            }
         }
     }
 }
